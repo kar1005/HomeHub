@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760344988217",
+    "project_id": "homehub-50ed7",
+    "storage_bucket": "homehub-50ed7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760344988217:android:7c4e37d31b345f658cdbe8",
+        "android_client_info": {
+          "package_name": "com.example.homehub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxJYkTMzXHsH1x-f8AnMFPb2tMDlPfJ3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
