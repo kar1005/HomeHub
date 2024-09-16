@@ -3,6 +3,7 @@ import 'property_detail_screen.dart';
 import 'search_screen.dart';
 import 'category_detail_screen.dart';
 import 'login_screen.dart';
+import 'favorites_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -168,8 +169,10 @@ class HomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => HomeScreen()),
             );
           } else if (index == 2) {
-            // Handle favorites navigation
-            // Navigator.push(...);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FavoritesScreen()),
+            );
           } else if (index == 3) {
             Navigator.push(
                 context,
@@ -235,7 +238,7 @@ class PropertyCard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => PropertyDetailScreen(
-                imageUrl: imageUrl,
+                // imageUrl: imageUrl,
                 title: title,
                 price: price,
                 description: description,
