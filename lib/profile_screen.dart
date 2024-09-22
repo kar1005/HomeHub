@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-// import 'login_screen.dart';
+import 'package:image_picker/image_picker.dart'; // Import image_picker
 import 'change_password_screen.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -8,13 +9,23 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Controllers to hold user data
   String fullName = 'Sankesh Patil';
   String phoneNumber = '+91 84010 45505';
   String email = 'sankesh4002@gmail.com';
   String username = '@sankesh_07';
+  String? profileImage; // To store the profile image path
 
-  // Function to update the profile details
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _updateProfileImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        profileImage = image.path; // Store the image path
+      });
+    }
+  }
+
   void _updateProfile(String updatedName, String updatedPhone) {
     setState(() {
       fullName = updatedName;
@@ -37,22 +48,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Profile Header Section (Profile Photo, Name, and Username)
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Color(0xFF648C8C),
-                    child: Icon(Icons.person, size: 50, color: Colors.white),
+                  GestureDetector(
+                    onTap: _updateProfileImage, // Add tap handler to update profile image
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xFF648C8C),
+                      backgroundImage: profileImage != null ? FileImage(File(profileImage!)) : null, // Show selected image
+                      child: profileImage == null ? Icon(Icons.person, size: 50, color: Colors.white) : null,
+                    ),
                   ),
                   SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        fullName, // Replace with dynamic user name
+                        fullName,
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 4),
                       Text(
-                        username, // Replace with dynamic username
+                        username,
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                     ],
@@ -71,21 +86,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 elevation: 2,
                 child: ListTile(
                   title: Text('Full Name'),
-                  subtitle: Text(fullName), // Replace with dynamic user name
+                  subtitle: Text(fullName),
                 ),
               ),
               Card(
                 elevation: 2,
                 child: ListTile(
                   title: Text('Email Address'),
-                  subtitle: Text(email), // Replace with dynamic user email
+                  subtitle: Text(email),
                 ),
               ),
               Card(
                 elevation: 2,
                 child: ListTile(
                   title: Text('Phone Number'),
-                  subtitle: Text(phoneNumber), // Replace with dynamic user phone number
+                  subtitle: Text(phoneNumber),
                 ),
               ),
               SizedBox(height: 24),
@@ -140,12 +155,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle log out button click
-                    Navigator.of(context).pushReplacementNamed('/login'); // Replace with actual login route
+                    Navigator.of(context).pushReplacementNamed('/login');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF648C8C),
-                    foregroundColor: Colors.white, // Change text color
+                    foregroundColor: Colors.white,
                   ),
                   child: Text('Log Out'),
                 ),
@@ -196,6 +210,11 @@ class _UpdateAccountDialogState extends State<UpdateAccountDialog> {
             GestureDetector(
               onTap: () {
                 // Handle profile picture change (upload or capture)
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ProfileImagePicker(), // A new screen for image picking
+                  ),
+                );
               },
               child: CircleAvatar(
                 radius: 40,
@@ -225,7 +244,7 @@ class _UpdateAccountDialogState extends State<UpdateAccountDialog> {
               enabled: false,
               decoration: InputDecoration(
                 labelText: 'Email Address',
-                hintText: 'sankesh4002@gmail.com', // Replace with dynamic email
+                hintText: 'sankesh4002@gmail.com',
               ),
             ),
           ],
@@ -240,12 +259,39 @@ class _UpdateAccountDialogState extends State<UpdateAccountDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            widget.onUpdate(nameController.text, phoneController.text); // Pass updated data back
+            widget.onUpdate(nameController.text, phoneController.text);
             Navigator.of(context).pop();
           },
           child: Text('Save'),
         ),
       ],
+    );
+  }
+}
+
+class ProfileImagePicker extends StatelessWidget {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(BuildContext context) async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      // Handle image here (e.g., update profile picture, save path, etc.)
+      Navigator.of(context).pop(); // Close the dialog
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pick Profile Picture'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => _pickImage(context),
+          child: Text('Open Camera'),
+        ),
+      ),
     );
   }
 }

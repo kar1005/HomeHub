@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'property_detail_screen.dart';
+import 'package:untitled/house_view.dart';
 
 class FavoritesScreen extends StatefulWidget {
   @override
@@ -85,11 +85,7 @@ class FavoritePropertyCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PropertyDetailScreen(
-                title: title,
-                price: price,
-                description: description,
-              ),
+              builder: (context) => HouseView()
             ),
           );
         },

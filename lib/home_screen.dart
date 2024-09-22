@@ -1,313 +1,105 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'property_detail_screen.dart';
-import 'search_screen.dart';
-import 'category_detail_screen.dart';
-import 'login_screen.dart';
-import 'favorites_screen.dart';
+import 'package:untitled/main_home.dart';
 
-class HomeScreen extends StatelessWidget {
+import 'locations.dart';
+
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Real Estate Home'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Handle search button click
-              showSearch(
-                context: context,
-                delegate: PropertySearchDelegate(),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
+    return SafeArea(
+      child: Scaffold(
+        body:Padding(
+          padding: EdgeInsets.all(15),
+          child:Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Categories Section
-              Text(
-                'Categories',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  CategoryCard(
-                    icon: Icons.home,
-                    label: 'For Sale',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CategoryDetailScreen(category: 'For Sale'),
-                        ),
-                      );
-                    },
+            children:[
+              Row(
+                children: [
+                  Icon(
+                    CupertinoIcons.building_2_fill,
+                    color: Colors.blueAccent,
+                    size: 50,
                   ),
-                  CategoryCard(
-                    icon: Icons.home_mini_outlined,
-                    label: 'For Rent',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CategoryDetailScreen(category: 'For Rent'),
-                        ),
-                      );
-                    },
+                  SizedBox(width: 20),
+                  Text(
+                    "Hii, Guest",
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  CategoryCard(
-                    icon: Icons.location_city,
-                    label: 'Apartments',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CategoryDetailScreen(category: 'Apartments'),
-                        ),
-                      );
-                    },
-                  ),
-                  CategoryCard(
-                    icon: Icons.villa,
-                    label: 'Villas',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CategoryDetailScreen(category: 'Villas'),
-                        ),
-                      );
-                    },
-                  ),
+
                 ],
               ),
-
-              SizedBox(height: 16),
-
-              // Featured Listings Section
-              Text(
-                'Featured Listings',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              SizedBox(height: 20),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  "assets/flutter_main.jpg",
+                  height:480,
+                    width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
-              ListView(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  PropertyCard(
-                    imageUrl: 'assets/sub_assets/modern_apartment.jpg',
-                    title: 'Modern Apartment',
-                    price: '\$120,000',
-                    description:
-                    'A beautiful modern apartment located in the city center.',
+              SizedBox(height: 20),
+              Text("Let's Find Your Sweet \n& Dream Place",
+              style:TextStyle(
+                color: Colors.black87,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+              ),
+              SizedBox(height: 10),
+              Text("Find Your Dream Place Just a few clicks",
+                style:TextStyle(
+                  color: Colors.black87,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              InkWell(
+                onTap:() {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MainHome(),
+                  ));
+              },
+                child:Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  PropertyCard(
-                    imageUrl: 'assets/sub_assets/cozy_villa.jpg',
-                    title: 'Cozy Villa',
-                    price: '\$250,000',
-                    description:
-                    'A cozy villa with a beautiful garden and pool.',
-                  ),
-                  PropertyCard(
-                    imageUrl: 'assets/sub_assets/luxurious_penthouse.jpg',
-                    title: 'Luxurious Penthouse',
-                    price: '\$450,000',
-                    description:
-                    'A luxurious penthouse with a panoramic view of the city.',
-                  ),
-                ],
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
+                        Text("Get Started",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
+                            Icons.arrow_outward_outlined,
+                            color: Colors.white,
+                        ),
+                      ],
+                ),
+              ),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black,
-        onTap: (index) {
-          // Handle navigation
-          if (index == 1) {
-            // Navigate to the search screen
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
-            );
-          } else if (index == 0) {
-            // Handle home navigation
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => FavoritesScreen()),
-            );
-          } else if (index == 3) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),); // Change to ProfileScreen if logged in
-          }
-        },
-      ),
-    );
-  }
-}
-
-class CategoryCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const CategoryCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40),
-            SizedBox(height: 8),
-            Text(label),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PropertyCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String price;
-  final String description;
-
-  const PropertyCard({
-    required this.imageUrl,
-    required this.title,
-    required this.price,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: InkWell(
-        onTap: () {
-          // Navigate to the property detail screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PropertyDetailScreen(
-                // imageUrl: imageUrl,
-                title: title,
-                price: price,
-                description: description,
-              ),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(price,
-                  style: TextStyle(fontSize: 14, color: Colors.grey)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PropertySearchDelegate extends SearchDelegate<String> {
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, '');
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return Center(
-      child: Text('Search results for "$query"'),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Suggestion $index'),
-          onTap: () {
-            close(context, 'Suggestion $index');
-          },
-        );
-      },
     );
   }
 }
