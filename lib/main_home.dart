@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
-import 'package:untitled/favorites_screen.dart';
-import 'package:untitled/locations.dart';
-import 'package:untitled/profile_screen.dart';
+import 'package:homehub/favorites_screen.dart';
+import 'package:homehub/locations.dart';
+import 'package:homehub/profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'login_screen.dart';
 
 class MainHome extends StatefulWidget {
   const MainHome({super.key});
@@ -19,6 +21,7 @@ class _MainHomeState extends State<MainHome> {
     setState(() {});
   }
 
+  User? user = FirebaseAuth.instance.currentUser;
   late PageController pageController;
 
   @override
@@ -66,7 +69,7 @@ class _MainHomeState extends State<MainHome> {
         children: [
           FavoritesScreen(),
           Locations(),
-          ProfileScreen()
+          user == null ? LoginScreen() : ProfileScreen(),
         ],
       ),
     );

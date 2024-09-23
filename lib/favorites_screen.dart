@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/house_view.dart';
+import 'package:homehub/house_view.dart';
 
 class FavoritesScreen extends StatefulWidget {
   @override

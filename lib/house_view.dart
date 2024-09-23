@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/houses_widget.dart';
+import 'package:homehub/houses_widget.dart';
 
 class HouseView extends StatelessWidget {
 

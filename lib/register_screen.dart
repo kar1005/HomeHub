@@ -15,7 +15,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //SingleChildScrollView to have an scrol in the screen
+      //SingleChildScrollView to have an scroll in the screen
       body: Center(
         child: SingleChildScrollView(
           child: Form(
