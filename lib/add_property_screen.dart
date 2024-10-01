@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // For image picking
-import 'dart:io'; // For handling file paths
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   @override
@@ -21,11 +23,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _priceController = TextEditingController();
 
   // Variables for dropdown and radio button selections
-  String? _category = 'Home'; // Default category
-  String _propertyType = 'Sell'; // Default type
-  File? _image; // Property image
+  String? _category = 'Home';
+  String _propertyType = 'Sell';
+  File? _image;
 
-  // Method to pick an image
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -35,50 +36,80 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     }
   }
 
-  // Method to handle form submission
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      // Prepare property data
       String propertyName = _nameController.text;
       String description = _descriptionController.text;
-      String beds = _bedsController.text;
-      String area = _areaController.text;
+      int beds = int.parse(_bedsController.text);
+      double area = double.parse(_areaController.text);
       String city = _cityController.text;
       String state = _stateController.text;
       String country = _countryController.text;
-      String price = _priceController.text;
+      double price = double.parse(_priceController.text);
+      String category = _category!;
+      String propertyType = _propertyType;
 
-      // For now, just print the property data
-      print("Property Name: $propertyName");
-      print("Description: $description");
-      print("Beds: $beds");
-      print("Area: $area sqft");
-      print("City: $city");
-      print("State: $state");
-      print("Country: $country");
-      print("Price: $price");
-      print("Category: $_category");
-      print("Type: $_propertyType");
+      // Get the current user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        // If no user is logged in, show an error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User not logged in')),
+        );
+        return;
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Property added successfully!')),
-      );
+      String userId = currentUser.uid;
 
-      // Clear the form
-      _nameController.clear();
-      _descriptionController.clear();
-      _bedsController.clear();
-      _areaController.clear();
-      _cityController.clear();
-      _stateController.clear();
-      _countryController.clear();
-      _priceController.clear();
-      setState(() {
-        _category = 'Home';
-        _propertyType = 'Sell';
-        _image = null;
-      });
+      // Property data map to store in Firestore
+      Map<String, dynamic> propertyData = {
+        'name': propertyName,
+        'description': description,
+        'beds': beds,
+        'area': area,
+        'city': city,
+        'state': state,
+        'country': country,
+        'price': price,
+        'category': category,
+        'propertyType': propertyType,
+        'userId': userId, // Store the current user's ID
+        'imageUrl': null,  // Placeholder for image URL
+      };
+
+      try {
+        // Save property to Firestore 'properties' collection
+        await FirebaseFirestore.instance.collection('properties').add(propertyData);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Property added successfully!')),
+        );
+
+        // Clear the form fields
+        _nameController.clear();
+        _descriptionController.clear();
+        _bedsController.clear();
+        _areaController.clear();
+        _cityController.clear();
+        _stateController.clear();
+        _countryController.clear();
+        _priceController.clear();
+        setState(() {
+          _image = null;
+          _category = 'Home';
+          _propertyType = 'Sell';
+        });
+      } catch (e) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add property: $e')),
+        );
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,148 +124,66 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Section 1: Property Info
+              Text("Property Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+
               // Property Name
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Property Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the property name';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_nameController, 'Property Name'),
+
               // Description
-              TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_descriptionController, 'Description', maxLines: 3),
+
               // Number of Beds
-              TextFormField(
-                controller: _bedsController,
-                decoration: InputDecoration(labelText: 'Number of Beds'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the number of beds';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_bedsController, 'Number of Beds', keyboardType: TextInputType.number),
+
               // Total sqft Area
-              TextFormField(
-                controller: _areaController,
-                decoration: InputDecoration(labelText: 'Total Sqft Area'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the area';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_areaController, 'Total Sqft Area', keyboardType: TextInputType.number),
+
               // Price
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the price';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_priceController, 'Price', keyboardType: TextInputType.number),
+
+              // Section 2: Location Info
+              Text("Location Information", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+
               // City
-              TextFormField(
-                controller: _cityController,
-                decoration: InputDecoration(labelText: 'City'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the city';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_cityController, 'City'),
+
               // State
-              TextFormField(
-                controller: _stateController,
-                decoration: InputDecoration(labelText: 'State'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the state';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_stateController, 'State'),
+
               // Country
-              TextFormField(
-                controller: _countryController,
-                decoration: InputDecoration(labelText: 'Country'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the country';
-                  }
-                  return null;
-                },
-              ),
-              // Type of Property (Sell or Rent)
+              _buildTextField(_countryController, 'Country'),
+
+              // Property Type
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: Text('Type of Property', style: TextStyle(fontSize: 16)),
               ),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Sell',
-                    groupValue: _propertyType,
-                    onChanged: (value) {
-                      setState(() {
-                        _propertyType = value!;
-                      });
-                    },
-                  ),
-                  Text('Sell'),
-                  Radio<String>(
-                    value: 'Rent',
-                    groupValue: _propertyType,
-                    onChanged: (value) {
-                      setState(() {
-                        _propertyType = value!;
-                      });
-                    },
-                  ),
-                  Text('Rent'),
-                ],
-              ),
-              // Category of Property
+              _buildRadioOption('Sell', 'Rent'),
+
+              // Property Category
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: Text('Category of Property', style: TextStyle(fontSize: 16)),
               ),
               DropdownButtonFormField<String>(
                 value: _category,
-                items: [
-                  DropdownMenuItem(value: 'Home', child: Text('Home')),
-                  DropdownMenuItem(value: 'Flat', child: Text('Flat')),
-                  DropdownMenuItem(value: 'Apartment', child: Text('Apartment')),
-                  DropdownMenuItem(value: 'Villa', child: Text('Villa')),
-                ],
+                items: ['Home', 'Flat', 'Apartment', 'Villa'].map((String value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _category = value;
                   });
                 },
-                decoration: InputDecoration(labelText: 'Select Category'),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
               ),
-              // Property Image Picker
+
+              // Image Picker
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: ElevatedButton(
@@ -249,13 +198,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               if (_image != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
-                  child: Image.file(
-                    _image!,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.file(_image!, height: 200, width: double.infinity, fit: BoxFit.cover),
                 ),
+
               // Submit Button
               SizedBox(height: 20),
               ElevatedButton(
@@ -270,6 +215,56 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // Custom reusable method for building TextFormFields
+  Widget _buildTextField(TextEditingController controller, String label, {TextInputType? keyboardType, int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  // Custom method to build Radio buttons for property type
+  Widget _buildRadioOption(String option1, String option2) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: option1,
+          groupValue: _propertyType,
+          onChanged: (value) {
+            setState(() {
+              _propertyType = value!;
+            });
+          },
+        ),
+        Text(option1),
+        Radio<String>(
+          value: option2,
+          groupValue: _propertyType,
+          onChanged: (value) {
+            setState(() {
+              _propertyType = value!;
+            });
+          },
+        ),
+        Text(option2),
+      ],
     );
   }
 }
